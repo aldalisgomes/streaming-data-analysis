@@ -91,4 +91,55 @@ best_movies = best_movies.assign(Rotten_Categ = pd.qcut(best_movies.Rotten_Adj,
 top_movies = best_movies[(best_movies['IMDB_Categ'] == 'higher') & 
                          (best_movies['Rotten_Categ'] == 'higher')].sort_values(['IMDB_Adj', 'Rotten_Adj'], ascending=False)
 
+
+#%% Generating and Exporting Plots-------------------------------------------------------
+
+# 1. Create the 'resultados' folder in the project root (if it doesn't exist)
+results_folder = os.path.join(os.getcwd(), 'resultados')
+os.makedirs(results_folder, exist_ok=True)
+
+# Plot generation example (can be replaced by your actual plotting code)
+plt.figure(figsize=(10, 6))
+plt.scatter(best_movies['Rotten_Adj'], best_movies['IMDB_Adj'], alpha=0.5, color='purple')
+plt.title('IMDb vs Rotten Tomatoes (Best Movies)')
+plt.xlabel('Rotten Tomatoes')
+plt.ylabel('IMDb')
+
+# 2. Save the plot inside the 'resultados' folder
+image_path = os.path.join(results_folder, 'ratings_plot.png')
+plt.savefig(image_path)
+plt.close()
+
+# 3. Detect the environment to open the results
+environment = platform.release().lower()
+
+if 'microsoft' in environment or 'wsl' in environment:
+    # 4. WSL Environment detected
+    try:
+        # Use wslpath -w to convert Linux paths to native Windows paths
+        win_folder = subprocess.check_output(['wslpath', '-w', results_folder]).decode('utf-8').strip()
+        win_image = subprocess.check_output(['wslpath', '-w', image_path]).decode('utf-8').strip()
+        
+        # Call explorer.exe to open the converted folder path
+        subprocess.run(['explorer.exe', win_folder])
+        
+        # Call powershell.exe to automatically open the image in the default Windows viewer
+        subprocess.run(['powershell.exe', '-Command', f"Invoke-Item -LiteralPath '{win_image}'"])
+    except Exception as e:
+        print(f"Error interacting with Windows via WSL: {e}")
+        
+elif platform.system() == 'Windows':
+    # Native Windows Support
+    os.startfile(results_folder)
+    os.startfile(image_path)
+    
+elif platform.system() == 'Darwin':
+    # Native macOS Support
+    subprocess.run(['open', results_folder])
+    subprocess.run(['open', image_path])
+    
+else:
+    # Generic / Native Linux Support
+    subprocess.run(['xdg-open', results_folder])
+    subprocess.run(['xdg-open', image_path])
 #%% END!

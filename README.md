@@ -16,8 +16,35 @@ The raw data was sourced from Kaggle: [TV shows on Netflix, Prime Video, Hulu an
 ## Repository Structure
 * `data/raw/`: Contains the CSV datasets.
 * `src/`: Contains the Python script for the analysis.
+* `resultados/`: Auto-generated folder for saving visualization plots (ignored by git).
 
 ## How to Run
-1. Clone this repository.
-2. Install the required dependencies: `pip install -r requirements.txt`
-3. Run the analysis script from the root directory: `python src/streaming_analysis.py`
+
+Note for Windows Users: The Makefile commands are designed for Unix environments (Linux/macOS). If you are on Windows, please use Git Bash or WSL to run the pipeline. The script is fully configured to automatically open the generated visualization on your Windows screen even if running from WSL.
+
+1. Clone the repository and access the folder
+```bash
+git clone https://github.com/aldalisgomes/streaming-data-analysis.git
+cd streaming-data-analysis
+```
+
+2. Create and activate the virtual environment (Required on newer Debian/Ubuntu-based systems, such as WSL)
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Install dependencies and run the pipeline
+```bash
+make install
+make run
+```
+(Note: To clean the environment, cache, and the generated resultados folder, you can run `make clean`)
+
+## Alternative for Windows (Or No Make Installed)
+If you are using standard Git Bash, PowerShell, or Command Prompt without make installed, you can simply run the Python script directly after activating your virtual environment:
+
+```bash
+pip install -r requirements.txt
+python src/streaming_analysis.py
+```
