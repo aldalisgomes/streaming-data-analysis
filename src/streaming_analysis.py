@@ -5,6 +5,10 @@
 
 #%% Loading the packages
 import pandas as pd
+import os
+import platform
+import subprocess
+import matplotlib.pyplot as plt
 
 #%% Loading the datasets
 
