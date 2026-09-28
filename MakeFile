@@ -1,0 +1,19 @@
+.PHONY: all venv install run clean
+
+all: venv install run
+
+venv:
+	python3 -m venv venv
+
+install:
+	./venv/bin/pip install --upgrade pip
+	./venv/bin/pip install -r requirements.txt
+
+run:
+	./venv/bin/python src/streaming_analysis.py
+
+clean:
+	rm -rf venv
+	rm -rf __pycache__
+	rm -rf src/__pycache__
+	rm -rf resultados
