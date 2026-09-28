@@ -8,7 +8,7 @@ import pandas as pd
 import os
 import platform
 import subprocess
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 #%% Loading the datasets
 
@@ -98,52 +98,58 @@ top_movies = best_movies[(best_movies['IMDB_Categ'] == 'higher') &
 
 #%% Generating and Exporting Plots-------------------------------------------------------
 
-# 1. Create the 'resultados' folder in the project root (if it doesn't exist)
+#%% Generating and Exporting Interactive Plot
+
+# 1. Create the 'resultados' folder (if it doesn't exist)
 results_folder = os.path.join(os.getcwd(), 'resultados')
 os.makedirs(results_folder, exist_ok=True)
 
-# Plot generation example (can be replaced by your actual plotting code)
-plt.figure(figsize=(10, 6))
-plt.scatter(best_movies['Rotten_Adj'], best_movies['IMDB_Adj'], alpha=0.5, color='purple')
-plt.title('IMDb vs Rotten Tomatoes (Best Movies)')
-plt.xlabel('Rotten Tomatoes')
-plt.ylabel('IMDb')
+# 2. Create the interactive plot with Plotly
+# The 'hover_name' property will show the movie title when hovering over the points
+fig = px.scatter(
+    top_movies,
+    x='Rotten_Adj',
+    y='IMDB_Adj',
+    hover_name='Title',
+    title='IMDb vs Rotten Tomatoes (Best Movies)',
+    labels={'Rotten_Adj': 'Rotten Tomatoes', 'IMDB_Adj': 'IMDb'},
+    opacity=0.7,
+    color_discrete_sequence=['purple']
+)
 
-# 2. Save the plot inside the 'resultados' folder
-image_path = os.path.join(results_folder, 'ratings_plot.png')
-plt.savefig(image_path)
-plt.close()
+# 3. Save the plot as an HTML file
+plot_path = os.path.join(results_folder, 'ratings_plot.html')
+fig.write_html(plot_path)
 
-# 3. Detect the environment to open the results
+# 4. Detect the environment to open the results
 environment = platform.release().lower()
 
 if 'microsoft' in environment or 'wsl' in environment:
-    # 4. WSL Environment detected
+    # WSL environment detected
     try:
-        # Use wslpath -w to convert Linux paths to native Windows paths
+        # Convert Linux paths to native Windows paths
         win_folder = subprocess.check_output(['wslpath', '-w', results_folder]).decode('utf-8').strip()
-        win_image = subprocess.check_output(['wslpath', '-w', image_path]).decode('utf-8').strip()
+        win_plot = subprocess.check_output(['wslpath', '-w', plot_path]).decode('utf-8').strip()
         
-        # Call explorer.exe to open the converted folder path
+        # Open the folder in Windows Explorer
         subprocess.run(['explorer.exe', win_folder])
         
-        # Call powershell.exe to automatically open the image in the default Windows viewer
-        subprocess.run(['powershell.exe', '-Command', f"Invoke-Item -LiteralPath '{win_image}'"])
+        # Open the HTML file in the default Windows browser (Edge, Chrome, etc.)
+        subprocess.run(['powershell.exe', '-Command', f"Invoke-Item -LiteralPath '{win_plot}'"])
     except Exception as e:
         print(f"Error interacting with Windows via WSL: {e}")
         
 elif platform.system() == 'Windows':
-    # Native Windows Support
+    # Native Windows support
     os.startfile(results_folder)
-    os.startfile(image_path)
+    os.startfile(plot_path)
     
 elif platform.system() == 'Darwin':
-    # Native macOS Support
+    # Native macOS support
     subprocess.run(['open', results_folder])
-    subprocess.run(['open', image_path])
+    subprocess.run(['open', plot_path])
     
 else:
-    # Generic / Native Linux Support
+    # Generic / Native Linux support
     subprocess.run(['xdg-open', results_folder])
-    subprocess.run(['xdg-open', image_path])
-#%% END!
+    subprocess.run(['xdg-open', plot_path])
